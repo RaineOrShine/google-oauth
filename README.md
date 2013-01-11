@@ -22,7 +22,9 @@ server.get('/authentication', function(req, res){
 
 	  //Redirect the user to Authentication From,
 	  // Set authentication scope to google calendar api
-	  oauth.getGoogleAuthorizeTokenURL( ['https://www.googleapis.com/auth/calendar'], function(err, redirecUrl) {
+	  oauth.getGoogleAuthorizeTokenURL({
+        scopes: ['https://www.googleapis.com/auth/calendar']
+      }, function(err, redirecUrl) {
   		if(err) return res.send(500,err);
   	  return res.redirect(redirecUrl);
   	});

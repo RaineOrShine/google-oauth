@@ -43,10 +43,10 @@ OAuth.prototype.getGoogleAuthorizeTokenURL = function(scopes, callback_url, call
 
 		if (err) return callback(err,null);
     
-		var reditectUrl = authorizeTokenUrl + '?oauth_token='+ oauth_Token;
+		var redirectUrl = authorizeTokenUrl + '?oauth_token='+ oauth_Token;
 		
 		cache.put(randomkey, oauth_token_secret, CACHE_TIMEOUT) // Time in ms
-		return callback(null, reditectUrl, oauth_token_secret);
+		return callback(null, redirectUrl, oauth_token_secret);
   });
 
 	this._authorize_callback = saveCalledback;
@@ -80,21 +80,30 @@ function OAuth2(consumer_key, consumer_secret, callback_url){
 	oauth.OAuth2.call(this, consumer_key, consumer_secret, baseSiteUrl, authorizePath, accessTokenPath);
 }
 
-OAuth2.prototype.getGoogleAuthorizeTokenURL = function(scopes, callback_url, callback) {
+OAuth2.prototype.getGoogleAuthorizeTokenURL = function(params, callback_url, callback) {
 	
-	if(arguments.length < 3){
+	if(arguments.length < 3) {
 	  callback = callback_url;
 	  callback_url = this.callback_url;
 	}
-	
-	if(typeof scopes != 'object' || !scopes.join) throw 'Invalid Argument (scopes)';
+
+	if(params === undefined) {
+		params = {};
+	}
+
+	if(!params.scopes || !params.scopes.join) throw 'Invalid Argument (scopes)';
 	callback = callback || function(){}
-	
-	var reditectUrl = this.getAuthorizeUrl({ 
-	  scope: scopes.join(' '), 
-	  response_type:'code', 
-	  redirect_uri:this.callback_url});
-  return callback(null, reditectUrl);
+
+	var redirectUrl = this.getAuthorizeUrl({ 
+	  scope: 			params.scopes.join(' '), 
+	  response_type: 	params.response_type || 'code',
+	  redirect_uri:		this.callback_url,
+	  state: 			params.state,
+	  access_type: 		params.access_type, // default: online
+	  approval_prompt: 	params.approval_prompt // default: auto
+	});
+
+    return callback(null, redirectUrl);
 }
 
 OAuth2.prototype.getGoogleAccessToken = function(params, callback) {

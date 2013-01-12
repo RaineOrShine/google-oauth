@@ -108,12 +108,11 @@ OAuth2.prototype.getGoogleAuthorizeTokenURL = function(params, callback_url, cal
 
 OAuth2.prototype.getGoogleAccessToken = function(params, callback) {
 	
-	var code = params.code;
 	callback = callback || function(){}
 	
-	this.getOAuthAccessToken(code,{
-	  grant_type:'authorization_code',
-	  redirect_uri:this.callback_url,
+	this.getOAuthAccessToken(params.code, {
+	  grant_type: params.grant_type || 'authorization_code',
+	  redirect_uri: params.grant_type !== 'refresh_token' ? this.callback_url : null,
 	},function(err, access_token, refresh_token, results){
 	  if (err) return callback(err,null);
 		return callback(null, access_token, refresh_token);
